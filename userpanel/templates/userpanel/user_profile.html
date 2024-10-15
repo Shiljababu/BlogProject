@@ -1,0 +1,173 @@
+{% extends 'userpanel/user_base.html' %}
+{% load static %}
+{% block title %}
+    Blog | UserProfile
+{% endblock %}
+{% block content %} 
+
+<!-- Main Content Wrapper with Background -->
+<div class="card text-bg-light p-3" style="margin-top: 30px; background-color:rgb(230, 210, 248) !important;">
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- Navigation -->
+                <ul class="nav nav-pills mb-3">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="bx bx-user me-1"></i> My profile</a>
+                    </li>
+                </ul>
+
+                <!-- Profile Details Card -->
+                <div class="card mb-4">
+                    <h5 class="card-header d-flex justify-content-between align-items-center">
+                        Profile Details
+                        <a href="{% url 'edit_profile' %}" class="btn btn-info">Edit Profile</a>
+                    </h5>
+                    <div class="card-body">
+                        <div class="d-flex align-items-start align-items-sm-center gap-4">
+                            {% if request.user.profile.profile_image %}
+                                <img
+                                    src="{{ request.user.profile.profile_image.url }}"
+                                    alt="Profile Image"
+                                    class="d-block rounded profile-image"
+                                    id="profileImage"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#imageModal"
+                                />
+                            {% else %}
+                                <img
+                                    src="{% static 'default_image.jpg' %}"
+                                    alt="Default Profile Image"
+                                    class="d-block rounded profile-image"
+                                    id="profileImage"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#imageModal"
+                                />
+                            {% endif %}
+                            
+                        </div>
+                    </div>
+                    <hr class="my-0" />
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="mb-3 col-md-6">
+                                <label for="firstName" class="form-label">User Name</label>
+                                <input class="form-control" type="text" id="firstName" value="{{ request.user.username }}" readonly />
+                            </div>
+
+                            <div class="mb-3 col-md-6">
+                                <label for="email" class="form-label">E-mail</label>
+                                <input class="form-control" type="text" id="email" value="{{ request.user.email }}" readonly />
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input class="form-control" type="text" id="phone" value="{{ request.user.profile.phone }}" readonly />
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" readonly>{{ request.user.profile.profile_description }}</textarea>
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label for="idProof" class="form-label">ID Proof</label>
+                                {% if request.user.profile.id_proof %}
+                                    <img src="{{ request.user.profile.id_proof.url }}" alt="ID Proof" class="small-image" id="idProofImage" data-bs-toggle="modal" data-bs-target="#imageModal">
+                                {% else %}
+                                    <p>No ID proof uploaded.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Deactivation Section -->
+                <div class="card">
+                    <h5 class="card-header">Delete Account</h5>
+                    <div class="card-body">
+                        <div class="mb-3 col-12 mb-0">
+                            <div class="alert alert-warning">
+                                <h6 class="alert-heading fw-bold mb-1">Are you sure you want to delete your account?</h6>
+                                <p class="mb-0">Once you delete your account, there is no going back. Please be certain.</p>
+                            </div>
+                        </div>
+                        <form id="formAccountDeactivation" action="{% url 'deactivate_account' %}" method="POST">
+                            {% csrf_token %}
+                            <div class="form-check mb-3">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="accountActivation"
+                                    id="accountActivation"
+                                    required
+                                />
+                                <label class="form-check-label" for="accountActivation">
+                                    I confirm my account deactivation
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-danger deactivate-account">Delete my Account</button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Displaying Larger Images -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="Image Preview" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-image {
+        border-radius: 50%;
+        border: 2px solid #ddd;
+        cursor: pointer;
+        margin-bottom: 15px;
+    }
+
+    .small-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    // JavaScript to handle image click and display in modal
+    document.addEventListener('DOMContentLoaded', function () {
+        const profileImage = document.getElementById('profileImage');
+        const idProofImage = document.getElementById('idProofImage');
+        const modalImage = document.getElementById('modalImage');
+        const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+
+        if (profileImage) {
+            profileImage.addEventListener('click', function () {
+                modalImage.src = profileImage.src;
+                imageModal.show();
+            });
+        }
+
+        if (idProofImage) {
+            idProofImage.addEventListener('click', function () {
+                modalImage.src = idProofImage.src;
+                imageModal.show();
+            });
+        }
+    });
+</script>
+
+{% endblock %}

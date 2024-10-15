@@ -1,0 +1,64 @@
+{% extends 'sitevisitor/site_base.html' %}
+{% load static %}
+{% block title %}
+    Blog | SiteLogin
+{% endblock %}
+{% block content %}
+
+<style>
+  .form-error {
+      color: red;
+      font-size: 0.875em;
+      margin-top: 0.25rem;
+  }
+</style>
+
+<!-- Content -->
+
+<div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+      <div class="authentication-inner">
+        <!-- Register -->
+        <div class="card">
+          <div class="card-body">
+            <!-- Logo -->
+            <div class="app-brand justify-content-center">
+              <a href="index.html" class="app-brand-link gap-2">
+                <span class="app-brand-logo demo">
+                  <!-- SVG Logo Here -->
+                </span>
+                <span class="app-brand-text demo text-body fw-bolder">TrekiFy</span>
+              </a>
+            </div>
+            <!-- /Logo -->
+            <h4 class="mb-2">Welcome to trekify! 👋</h4>
+            <p class="mb-4">Please sign-in to your account and start the adventure</p>
+            
+            <form id="formAuthentication" class="mb-3" action="{% url 'admin_login' %}" method="POST">
+              {% csrf_token %}
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email or Username</label>
+              {{ form.username }}
+              
+            </div>
+            <div class="mb-3 form-password-toggle">
+              <div class="input-group input-group-merge">
+                {{ form.password }}
+                
+                <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+              </div>
+            </div>
+            <div class="mb-3">
+              <button type="submit" class="btn btn-primary d-grid w-100">Sign in</button>
+            </div>
+            </form>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- / Content -->
+{% endblock %}

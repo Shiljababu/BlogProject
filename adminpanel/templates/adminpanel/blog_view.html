@@ -1,0 +1,124 @@
+{% extends 'adminpanel/admin_base.html' %}
+{% load static %}
+{% block title %}
+    Blog | ViewBlog
+{% endblock %}
+{% block content %}
+
+<div class="container-xxl flex-grow-1 container-p-y" style="margin-top: 50px; background-color: aliceblue;">
+        <div class="card mb-4">
+            <!-- Hide/Show Button for Admin -->
+            {% if user.is_staff %}
+                <form action="{% url 'blog_view' blog.id %}" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    {% if blog.status == 'visible' %}
+                        <button type="submit" name="hide_blog" class="btn btn-danger btn-sm ms-2">Hide Blog</button>
+                    {% else %}
+                        <button type="submit" name="show_blog" class="btn btn-success btn-sm ms-2">Show Blog</button>
+                    {% endif %}
+                </form>
+            {% endif %}
+            <!-- Blog Content -->
+            <div class="text-center mx-auto mb-5" data-wow-delay="0.1s" style="max-width: 500px;">
+                <p class="text-primary text-uppercase mb-2" style="font-size: 1.2rem; font-weight: bold; color: #ff5722; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);"></p>
+                <h1 class="display-6 mb-4" style="font-size: 3rem; font-weight: bold; color: #473757; text-shadow: 3px 3px 6px rgba(0,0,0,0.4);">
+                    {{ blog.title }}
+            </h1>
+            </div>
+            <div class="card-body">
+                {% if blog.blog_image %}
+                    <img class="large-img mb-4" src="{{ blog.blog_image.url }}" alt="Blog image" />
+                {% else %}
+                    <img class="large-img mb-4" src="{% static 'assets/img/elements/2.jpg' %}" alt="Default image" />
+                {% endif %}
+                <div class="blog-details mb-4">
+                    <p><strong>Written by</strong> {{ blog.author }}</p>
+                    <p><strong>Published on:</strong> {{ blog.created_at|date:"F j, Y, g:i A" }}</p>
+                </div>
+                <div class="blog-description">
+                    {{ blog.description|linebreaksbr|safe }}
+                </div>
+            </div>
+        </div>
+<!-- Comment Section -->
+<div class="card mb-5">
+    <div class="card-body">
+        <h5 class="card-title">Comments ({{ count }})</h5>
+        <ul class="list-group">
+            <form action="{% url 'blog_view' blog.id %}" method="POST">
+                {% csrf_token %}
+                {% for comment in comments %}
+    <li class="list-group-item d-flex align-items-center">
+        {% if comment.author.profile.profile_image %}
+            <img src="{{ comment.author.profile.profile_image.url }}" alt="Profile Image" class="profile-image-small me-2">
+        {% else %}
+            <img src="{% static 'default_image.jpg' %}" alt="Default Profile Image" class="profile-image-small me-2">
+        {% endif %}
+        <div>
+            <p>{{ comment.comment }}</p>
+            <small class="text-muted">By {{ comment.author.username }}, {{ comment.created_at }}</small>
+            {% if user.is_staff %}
+                <form action="{% url 'blog_view' blog.id %}" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    {% if comment.status == 'visible' %}
+                        <input type="hidden" name="comment_action_hide" value="{{ comment.id }}">
+                        <button type="submit" class="btn btn-danger btn-sm ms-2">Hide Comment</button>
+                    {% else %}
+                        <input type="hidden" name="comment_action_show" value="{{ comment.id }}">
+                        <button type="submit" class="btn btn-success btn-sm ms-2">Show Comment</button>
+                    {% endif %}
+                </form>
+            {% endif %}
+        </div>
+    </li>
+{% endfor %}
+        <!-- Comment Form -->
+        <form id="commentForm" action="{% url 'blog_view' blog.id %}" method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="commentContent" class="form-label">Comment</label>
+                <textarea class="form-control" id="commentContent" name="comment" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Post Comment</button>
+        </form>
+    </div>
+</div>
+    <style>
+        .profile-image-small {
+    width: 40px; 
+    height: 40px; 
+    object-fit: cover; 
+    border-radius: 50%; 
+    border: 1px solid #ddd; 
+}
+.large-img {
+    width: 100%;
+    height: auto; 
+    max-width: 800px;
+    display: block; 
+    margin: 0 auto; 
+}
+.card-header {
+    font-size: 3rem; 
+    font-weight: bold; 
+    margin-bottom: 1rem; 
+    color: black;
+}
+
+.blog-details p {
+    font-size: 1.5rem; 
+    font-weight: bold; 
+    color: black;
+}
+
+.blog-details strong {
+    font-weight: bold;
+    color: black; 
+}
+
+.blog-description{
+    color: rgb(32, 31, 31);
+}
+
+    </style>
+    {% endblock %}

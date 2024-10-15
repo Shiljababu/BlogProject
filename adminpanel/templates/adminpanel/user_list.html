@@ -1,0 +1,211 @@
+{% extends 'adminpanel/admin_base.html' %}
+{% load static %}
+{% block title %}
+    User | User_List
+{% endblock %}
+{% block content %}
+<div class="container-xxl flex-grow-1 container-p-y" style="margin-top: 50px; background-color: aliceblue;">
+    <div class="d-flex align-items-center mb-3">
+        <!-- Pills Navigation -->
+        <ul class="nav nav-pills mb-0 flex-grow-1" role="tablist">
+            <li class="nav-item flex-fill">
+                <button
+                    type="button"
+                    class="nav-link active"
+                    role="tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#navs-pills-justified-home"
+                    aria-controls="navs-pills-justified-home"
+                    aria-selected="true"
+                >
+                    <i class="tf-icons bx bx-user"></i> Users
+                    <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-danger">{{ users|length }}</span>
+                </button>
+            </li>
+            <li class="nav-item flex-fill">
+                <button
+                    type="button"
+                    class="nav-link"
+                    role="tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#navs-pills-justified-profile"
+                    aria-controls="navs-pills-justified-profile"
+                    aria-selected="false"
+                >
+                    <i class="tf-icons bx bx-check-circle"></i> Active users
+                    <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-success">{{ active_users|length }}</span>
+                </button>
+            </li>
+            <li class="nav-item flex-fill">
+                <button
+                    type="button"
+                    class="nav-link"
+                    role="tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#navs-pills-justified-messages"
+                    aria-controls="navs-pills-justified-messages"
+                    aria-selected="false"
+                >
+                    <i class="tf-icons bx bx-x-circle"></i> Inactive users
+                    <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-warning">{{ inactive_users|length }}</span>
+                </button>
+            </li>
+        </ul>
+        
+        <!-- Search Form -->
+        <form method="GET" action="{% url 'user_list' %}" class="d-flex ms-3 flex-shrink-1">
+            <input type="text" name="q" class="form-control me-2" placeholder="Search users..." value="{{ request.GET.q }}">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+
+    <div class="tab-content">
+        <!-- All Users Tab -->
+        <div class="tab-pane fade show active" id="navs-pills-justified-home" role="tabpanel">
+            <div class="table-responsive text-nowrap">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for user in users %}
+                        <tr>
+                            <td><a href="{% url 'user_detail' user.id %}">{{ user.username }}</a></td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.is_active|yesno:"Active,Inactive" }}</td>
+                            <td>
+                                <form action="{% url 'user_list' %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                    {% if user.is_active %}
+                                        <button type="submit" name="action" value="deactivate" class="btn btn-warning">Deactivate</button>
+                                    {% else %}
+                                        <button type="submit" name="action" value="activate" class="btn btn-success">Activate</button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4">No users available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Active Users Tab -->
+        <div class="tab-pane fade" id="navs-pills-justified-profile" role="tabpanel">
+            <div class="table-responsive text-nowrap">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for user in active_users %}
+                        <tr>
+                            <td><a href="{% url 'user_detail' user.id %}">{{ user.username }}</a></td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.is_active|yesno:"Active,Inactive" }}</td>
+                            <td>
+                                <form action="{% url 'user_list' %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                    <button type="submit" name="action" value="deactivate" class="btn btn-warning">Deactivate</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4">No active users available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Inactive Users Tab -->
+        <div class="tab-pane fade" id="navs-pills-justified-messages" role="tabpanel">
+            <div class="table-responsive text-nowrap">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        {% for user in inactive_users %}
+                        <tr>
+                            <td><a href="{% url 'user_detail' user.id %}">{{ user.username }}</a></td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.is_active|yesno:"Active,Inactive" }}</td>
+                            <td>
+                                <form action="{% url 'user_list' %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                    <button type="submit" name="action" value="activate" class="btn btn-success">Activate</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4">No inactive users available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    /* Flex container for tabs and search bar */
+.d-flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Flex container for nav-pills */
+.nav-pills {
+    display: flex;
+    flex-grow: 1;
+}
+
+/* Ensure each nav-item takes equal space */
+.nav-item {
+    flex: 1;
+    text-align: center;
+}
+
+/* Ensure search form does not overflow */
+.form-control {
+    max-width: 200px; /* Adjust max-width to fit your layout */
+}
+
+.flex-shrink-1 {
+    flex-shrink: 1;
+}
+
+/* Adjust spacing between search form and tabs */
+.ms-3 {
+    margin-left: 1rem; /* Adjust this value to fit your design */
+}
+
+</style>
+{% endblock %}
